@@ -20,7 +20,7 @@ public class EchoServer {
                 if (str.equals("/end")) {
                     break;
                 }
-                out.writeUTF("Эхо: " + str);
+                out.writeUTF("Сообщение: " + str);
             }
         } catch (IOException e) {
             e.printStackTrace();
