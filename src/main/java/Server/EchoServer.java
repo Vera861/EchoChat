@@ -1,5 +1,7 @@
 package Server;
 
+import Client.EchoClient;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,17 +12,24 @@ public class EchoServer {
     public static void main(String[] args) {
         Socket socket = null;
         try (ServerSocket serverSocket = new ServerSocket(8189)) {
-            System.out.println("Сервер запущен, ожидаем подключения...");
-            socket = serverSocket.accept();
-            System.out.println("Клиент подключился");
-            DataInputStream in = new DataInputStream(socket.getInputStream());
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            Socket client = serverSocket.accept();
+            System.out.println("Соединение установлено");
+            DataInputStream in = new DataInputStream(client.getInputStream());
+            DataOutputStream out = new DataOutputStream(client.getOutputStream());
             while (true) {
-                String str = in.readUTF();
-                if (str.equals("/end")) {
-                    break;
+                while (!client.isClosed()) {
+                    String str = in.readUTF();
+                    System.out.println("Сообщение от клиента: " + str);
+                    if (str.equals("/end")) {
+                        out.writeUTF("Server reply - " + str + " - OK");
+                        out.flush();
+                        break;
+                    }
+                    out.writeUTF("Server reply - " + str + " - OK");
                 }
-                out.writeUTF("Сообщение: " + str);
+                in.close();
+                out.close();
+                client.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
